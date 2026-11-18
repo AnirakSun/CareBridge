@@ -5,8 +5,8 @@ import { logoutAction } from "@/server/auth";
 import { getCurrentUser } from "@/server/session";
 import { unreadNotificationCount } from "@/server/services/notifications";
 import { Button } from "@/components/ui/button";
-import { MobileNav } from "./mobile-nav";
 import { NotificationsBell } from "./notifications-bell";
+import { PublicSiteNav } from "./public-site-nav";
 import { UserAccountMenu } from "./user-account-menu";
 
 export async function SiteHeader() {
@@ -14,23 +14,21 @@ export async function SiteHeader() {
   const unread = user ? await unreadNotificationCount(user) : 0;
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <MobileNav user={user} />
-          <Link href="/" className="flex items-center gap-2 font-semibold text-blue-800">
-            <CareBridgeLogo className="text-blue-800" />
-            <span>CareBridge</span>
-          </Link>
-        </div>
+    <header className="relative border-b border-slate-200 bg-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="grid h-16 grid-cols-[auto_1fr_auto] items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
+          <div className="flex items-center gap-3 justify-self-start">
+            <Link href="/" className="flex items-center gap-2 font-semibold text-blue-800">
+              <CareBridgeLogo className="text-blue-800" />
+              <span>CareBridge</span>
+            </Link>
+          </div>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-700 md:flex">
-          <Link href="/organizations" className="hover:text-blue-700">
-            Organizations
-          </Link>
-        </nav>
+          <div className="hidden justify-self-center md:block">
+            <PublicSiteNav user={user} />
+          </div>
 
-        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2 justify-self-end">
           {user ? (
             <>
               <NotificationsBell initialUnreadCount={unread} userRole={user.role} />
@@ -57,6 +55,11 @@ export async function SiteHeader() {
               <Shield aria-hidden />
             </span>
           )}
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 py-3 md:hidden">
+          <PublicSiteNav user={user} />
         </div>
       </div>
     </header>
