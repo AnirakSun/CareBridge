@@ -1,0 +1,306 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String
+  phone        String?
+  streetAddress String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  zipCode       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions              Session[]
+  insurances            UserInsurance[]
+  connectedDevices      ConnectedHealthDevice[]
+  memberships           OrganizationMembership[]
+  submissions           Submission[]             @relation("SubmitterSubmissions")
+  documents             Document[]
+  messages              Message[]
+  notifications         Notification[]
+  submissionReads       SubmissionRead[]
+  statusChanges         StatusHistory[]
+  careProviders              UserCareProvider[]
+  staffMessagesSent          StaffMessage[]         @relation("StaffMessagesSent")
+  staffMessagesReceived      StaffMessage[]         @relation("StaffMessagesReceived")
+  patientProviderMessages    PatientProviderMessage[] @relation("PatientProviderMessagePatient")
+  patientProviderMessagesSent PatientProviderMessage[] @relation("PatientProviderMessageSender")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Organization {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  type              String
+  city              String
+  state             String
+  description       String
+  streetAddress     String?
+  zipCode           String?
+  phone             String?
+  website           String?
+  hoursOverview     String?
+  accreditations    String?
+  patientPopulation String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  memberships OrganizationMembership[]
+  submissions Submission[]
+  staffMessages StaffMessage[]
+  facilities    OrganizationFacility[]
+  specialties   OrganizationSpecialty[]
+  providers     CareProvider[]
+}
+
+model OrganizationFacility {
+  id             String @id @default(cuid())
+  organizationId String
+  name           String
+  address        String
+  city           String
+  state          String
+  phone          String?
+  description    String
+  sortOrder      Int    @default(0)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model OrganizationSpecialty {
+  id             String @id @default(cuid())
+  organizationId String
+  name           String
+  description    String
+  sortOrder      Int    @default(0)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model CareProvider {
+  id             String  @id @default(cuid())
+  organizationId String
+  name           String
+  title          String
+  specialty      String
+  credentials    String
+  bio            String
+  email          String?
+  phone          String?
+  department     String?
+  photoUrl       String?
+  isPrimaryCare  Boolean @default(false)
+  sortOrder      Int     @default(0)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  careTeamMembers UserCareProvider[]
+  patientMessages PatientProviderMessage[]
+}
+
+model UserInsurance {
+  id           String   @id @default(cuid())
+  userId       String
+  providerName String
+  planName     String?
+  memberId     String?
+  groupNumber  String?
+  isPrimary    Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserCareProvider {
+  id             String   @id @default(cuid())
+  userId         String
+  careProviderId String
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careProvider CareProvider @relation(fields: [careProviderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, careProviderId])
+  @@index([userId])
+}
+
+model ConnectedHealthDevice {
+  id          String    @id @default(cuid())
+  userId      String
+  deviceType  String
+  displayName String
+  status      String
+  connectedAt DateTime  @default(now())
+  lastSyncAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceType])
+  @@index([userId])
+}
+
+model OrganizationMembership {
+  id             String @id @default(cuid())
+  userId         String
+  organizationId String
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model Submission {
+  id             String   @id @default(cuid())
+  referenceId    String   @unique
+  title          String
+  category       String
+  description    String
+  recipientName  String
+  status         String
+  submitterId    String
+  organizationId String
+  deviceContext  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  submitter    User            @relation("SubmitterSubmissions", fields: [submitterId], references: [id])
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  documents    Document[]
+  statusHistory StatusHistory[]
+  messages     Message[]
+  notifications Notification[]
+  reads        SubmissionRead[]
+
+  @@index([organizationId, status])
+  @@index([submitterId])
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  submissionId String
+  uploadedById String
+  originalName String
+  storageKey   String   @unique
+  mimeType     String
+  sizeBytes    Int
+  sha256       String
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  uploadedBy User       @relation(fields: [uploadedById], references: [id])
+}
+
+model StatusHistory {
+  id           String   @id @default(cuid())
+  submissionId String
+  fromStatus   String?
+  toStatus     String
+  note         String?
+  changedById  String
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  changedBy  User       @relation(fields: [changedById], references: [id])
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  submissionId String
+  senderId     String
+  body         String
+  kind         String   @default("MESSAGE")
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  sender     User       @relation(fields: [senderId], references: [id])
+}
+
+model SubmissionRead {
+  id           String   @id @default(cuid())
+  userId       String
+  submissionId String
+  lastReadAt   DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, submissionId])
+}
+
+model StaffMessage {
+  id             String   @id @default(cuid())
+  organizationId String
+  senderId       String
+  recipientId    String
+  body           String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("StaffMessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient    User         @relation("StaffMessagesReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([senderId, recipientId])
+  @@index([recipientId, senderId])
+}
+
+model PatientProviderMessage {
+  id             String   @id @default(cuid())
+  patientId      String
+  careProviderId String
+  senderId       String
+  body           String
+  createdAt      DateTime @default(now())
+
+  patient      User         @relation("PatientProviderMessagePatient", fields: [patientId], references: [id], onDelete: Cascade)
+  careProvider CareProvider @relation(fields: [careProviderId], references: [id], onDelete: Cascade)
+  sender       User         @relation("PatientProviderMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, careProviderId])
+  @@index([careProviderId])
+}
+
+model Notification {
+  id             String    @id @default(cuid())
+  userId         String
+  submissionId   String?
+  careProviderId String?
+  patientId      String?
+  type           String
+  text           String
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt])
+}

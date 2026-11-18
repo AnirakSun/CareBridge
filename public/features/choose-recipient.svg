@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none" role="img" aria-label="Choose healthcare organization">
+  <rect width="320" height="200" rx="12" fill="#EFF6FF"/>
+  <path d="M160 45 L220 75 V145 L160 175 L100 145 V75 Z" fill="#fff" stroke="#BFDBFE" stroke-width="2"/>
+  <rect x="130" y="95" width="60" height="50" rx="4" fill="#DBEAFE"/>
+  <path d="M145 75h30v15h-30z" fill="#2563EB"/>
+  <circle cx="160" cy="68" r="8" fill="#1D4ED8"/>
+  <path d="M70 120h40M210 120h40" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+  <rect x="55" y="130" width="70" height="45" rx="6" fill="#fff" stroke="#BFDBFE"/>
+  <rect x="195" y="130" width="70" height="45" rx="6" fill="#fff" stroke="#BFDBFE"/>
+</svg>

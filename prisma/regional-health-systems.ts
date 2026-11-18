@@ -1,0 +1,536 @@
+import type { PrismaClient } from "@prisma/client";
+import type { OrgProfileInput } from "./organization-profiles";
+import { photoUrlForProvider } from "./provider-photos";
+
+/** Demo profiles for well-known health system names — fictional clinicians & (555) contacts only. */
+export const REGIONAL_HEALTH_SYSTEM_ORGS: Array<
+  OrgProfileInput & {
+    name: string;
+    slug: string;
+    type: string;
+    city: string;
+    state: string;
+    description: string;
+  }
+> = [
+  {
+    name: "Northwell Health",
+    slug: "northwell-health",
+    type: "hospital",
+    city: "New Hyde Park",
+    state: "NY",
+    description:
+      "Demo profile for Northwell Health — New York’s largest health care provider (fictional CareBridge intake listing).",
+    streetAddress: "300 Community Drive",
+    zipCode: "11040",
+    phone: "(555) 020-1000",
+    website: "https://www.northwell.edu/",
+    hoursOverview: "Hospital campuses 24/7; primary care offices Mon–Fri 8am–6pm.",
+    accreditations: "Demo integrated delivery network · Fictional CareBridge partner",
+    patientPopulation: "Long Island, New York City, Westchester, and Hudson Valley (synthetic demo).",
+    facilities: [
+      {
+        name: "Northwell — Long Island Jewish Medical Center (demo)",
+        address: "270-05 76th Avenue",
+        city: "New Hyde Park",
+        state: "NY",
+        phone: "(555) 020-1001",
+        description: "Tertiary hospital demo site for document routing and specialist referrals.",
+        sortOrder: 0,
+      },
+      {
+        name: "Northwell — Huntington Hospital (demo)",
+        address: "270 Park Avenue",
+        city: "Huntington",
+        state: "NY",
+        phone: "(555) 020-1002",
+        description: "Community hospital campus accepting synthetic imaging and lab uploads.",
+        sortOrder: 1,
+      },
+    ],
+    specialties: [
+      {
+        name: "Cardiovascular Services",
+        description: "Heart failure, structural heart, and cardiac rehab coordination.",
+        sortOrder: 0,
+      },
+      {
+        name: "Oncology",
+        description: "Infusion, tumor board referrals, and pathology report intake.",
+        sortOrder: 1,
+      },
+      {
+        name: "Primary Care",
+        description: "PCP network for preventive care and chronic disease management.",
+        sortOrder: 2,
+      },
+    ],
+    providers: [
+      {
+        name: "Dr. Elaine Hartman",
+        title: "Chief of Primary Care",
+        specialty: "Internal Medicine",
+        credentials: "MD",
+        department: "Northwell Physician Partners · Demo",
+        email: "elaine.hartman.demo@carebridge.local",
+        phone: "(555) 020-1101",
+        bio: "Fictional lead PCP for CareBridge document submissions to Northwell demo endpoints.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Omar Velasquez",
+        title: "Attending Cardiologist",
+        specialty: "Cardiology",
+        credentials: "MD, FACC",
+        department: "Cardiovascular Institute (demo)",
+        email: "omar.velasquez.demo@carebridge.local",
+        phone: "(555) 020-1102",
+        bio: "Demo cardiologist reviewing synthetic echo and stress-test referrals.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+      {
+        name: "Dr. Nina Kaufman",
+        title: "Medical Oncologist",
+        specialty: "Oncology",
+        credentials: "MD",
+        department: "Cancer Institute (demo)",
+        email: "nina.kaufman.demo@carebridge.local",
+        phone: "(555) 020-1103",
+        bio: "Fictional oncologist for pathology and infusion scheduling uploads.",
+        isPrimaryCare: false,
+        sortOrder: 2,
+      },
+    ],
+  },
+  {
+    name: "NYU Langone Health",
+    slug: "nyu-langone",
+    type: "hospital",
+    city: "New York",
+    state: "NY",
+    description:
+      "Demo NYU Langone Health listing for academic medical center workflows in CareBridge.",
+    streetAddress: "550 First Avenue",
+    zipCode: "10016",
+    phone: "(555) 020-2000",
+    website: "https://nyulangone.org/",
+    hoursOverview: "Tisch Hospital 24/7; ambulatory sites Mon–Fri 7am–7pm.",
+    accreditations: "Demo academic medical center · Fictional partner",
+    patientPopulation: "NYC metro, tristate referrals (synthetic demo data).",
+    facilities: [
+      {
+        name: "NYU Langone — Tisch Hospital (demo)",
+        address: "550 First Avenue",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-2001",
+        description: "Flagship inpatient campus for demo submission review.",
+        sortOrder: 0,
+      },
+      {
+        name: "NYU Langone — Ambulatory Care Center East 38th (demo)",
+        address: "240 East 38th Street",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-2002",
+        description: "Outpatient specialty suites and imaging.",
+        sortOrder: 1,
+      },
+    ],
+    specialties: [
+      {
+        name: "Orthopedic Surgery",
+        description: "Sports medicine, joint replacement, and spine referrals.",
+        sortOrder: 0,
+      },
+      {
+        name: "Neurology",
+        description: "Stroke, epilepsy, and movement disorder clinics.",
+        sortOrder: 1,
+      },
+      {
+        name: "Primary Care",
+        description: "General internal medicine and family health.",
+        sortOrder: 2,
+      },
+    ],
+    providers: [
+      {
+        name: "Dr. Hannah Wu",
+        title: "Primary Care Physician",
+        specialty: "Internal Medicine",
+        credentials: "MD",
+        department: "NYU Langone Medical Associates · Demo",
+        email: "hannah.wu.demo@carebridge.local",
+        phone: "(555) 020-2101",
+        bio: "Fictional PCP gateway for patient-submitted records in the demo.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Marcus Lee",
+        title: "Orthopedic Surgeon",
+        specialty: "Orthopedic Surgery",
+        credentials: "MD",
+        department: "Hospital for Joint Diseases (demo)",
+        email: "marcus.lee.demo@carebridge.local",
+        phone: "(555) 020-2102",
+        bio: "Demo surgeon reviewing MRI and operative note uploads.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+      {
+        name: "Dr. Sofia Barros",
+        title: "Neurologist",
+        specialty: "Neurology",
+        credentials: "MD",
+        department: "Comprehensive Epilepsy Center (demo)",
+        email: "sofia.barros.demo@carebridge.local",
+        phone: "(555) 020-2103",
+        bio: "Fictional neurologist for EEG and consult letter intake.",
+        isPrimaryCare: false,
+        sortOrder: 2,
+      },
+    ],
+  },
+  {
+    name: "Weill Cornell Medicine",
+    slug: "weill-cornell",
+    type: "hospital",
+    city: "New York",
+    state: "NY",
+    description:
+      "Demo Weill Cornell Medicine profile — affiliated with NewYork-Presbyterian in real life; here used for synthetic CareBridge routing only.",
+    streetAddress: "525 East 68th Street",
+    zipCode: "10065",
+    phone: "(555) 020-3000",
+    website: "https://weill.cornell.edu/",
+    hoursOverview: "Clinical campuses Mon–Fri 8am–6pm; inpatient services 24/7.",
+    accreditations: "Demo Ivy League medical college affiliate",
+    patientPopulation: "Manhattan and regional specialty referrals (fictional).",
+    facilities: [
+      {
+        name: "Weill Cornell — Greenberg Pavilion (demo)",
+        address: "525 East 68th Street",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-3001",
+        description: "Inpatient and surgical demo facility.",
+        sortOrder: 0,
+      },
+    ],
+    specialties: [
+      { name: "Transplant Medicine", description: "Pre- and post-transplant documentation.", sortOrder: 0 },
+      { name: "Gastroenterology", description: "IBD, hepatology, and endoscopy referrals.", sortOrder: 1 },
+      { name: "Family Medicine", description: "Primary care for adults and families.", sortOrder: 2 },
+    ],
+    providers: [
+      {
+        name: "Dr. Kevin Okafor",
+        title: "Family Medicine Physician",
+        specialty: "Family Medicine",
+        credentials: "MD",
+        department: "Weill Cornell Primary Care · Demo",
+        email: "kevin.okafor.demo@carebridge.local",
+        phone: "(555) 020-3101",
+        bio: "Fictional family medicine lead for CareBridge demo uploads.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Lila Romano",
+        title: "Transplant Hepatologist",
+        specialty: "Gastroenterology",
+        credentials: "MD",
+        department: "Center for Liver Disease (demo)",
+        email: "lila.romano.demo@carebridge.local",
+        phone: "(555) 020-3102",
+        bio: "Demo specialist for liver transplant evaluation packets.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+    ],
+  },
+  {
+    name: "AdvantageCare Physicians",
+    slug: "advantagecare-physicians",
+    type: "clinic",
+    city: "Lake Success",
+    state: "NY",
+    description:
+      "Demo multispecialty medical group profile modeled after large NY primary/specialty networks.",
+    streetAddress: "2000 Marcus Avenue",
+    zipCode: "11042",
+    phone: "(555) 020-4000",
+    website: "https://www.advantagecarephysicians.com/",
+    hoursOverview: "Most offices Mon–Fri 8am–5pm; some urgent care evenings.",
+    patientPopulation: "Employed and community patients across NYC and Long Island (demo).",
+    facilities: [
+      {
+        name: "AdvantageCare — Lake Success Medical Office (demo)",
+        address: "2000 Marcus Avenue",
+        city: "Lake Success",
+        state: "NY",
+        phone: "(555) 020-4001",
+        description: "Flagship ambulatory demo office with lab draw and imaging.",
+        sortOrder: 0,
+      },
+      {
+        name: "AdvantageCare — Brooklyn Heights (demo)",
+        address: "185 Montague Street",
+        city: "Brooklyn",
+        state: "NY",
+        phone: "(555) 020-4002",
+        description: "Urban primary care and pediatrics demo site.",
+        sortOrder: 1,
+      },
+    ],
+    specialties: [
+      { name: "Primary Care", description: "Adult and pediatric wellness.", sortOrder: 0 },
+      { name: "Endocrinology", description: "Diabetes and thyroid management.", sortOrder: 1 },
+      { name: "Women's Health", description: "OB/GYN and mammography referrals.", sortOrder: 2 },
+    ],
+    providers: [
+      {
+        name: "Dr. Rachel Stein",
+        title: "Primary Care Medical Director",
+        specialty: "Internal Medicine",
+        credentials: "MD",
+        department: "Primary Care · Demo",
+        email: "rachel.stein.demo@carebridge.local",
+        phone: "(555) 020-4101",
+        bio: "Fictional PCP director for high-volume document intake demos.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Daniel Cho",
+        title: "Endocrinologist",
+        specialty: "Endocrinology",
+        credentials: "MD",
+        department: "Specialty Services · Demo",
+        email: "daniel.cho.demo@carebridge.local",
+        phone: "(555) 020-4102",
+        bio: "Demo endocrinologist reviewing A1c and CGM summary uploads.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+    ],
+  },
+  {
+    name: "Montefiore Medical Center",
+    slug: "montefiore",
+    type: "hospital",
+    city: "Bronx",
+    state: "NY",
+    description: "Demo Montefiore profile for academic safety-net hospital workflows.",
+    streetAddress: "111 East 210th Street",
+    zipCode: "10467",
+    phone: "(555) 020-5000",
+    website: "https://www.montefiore.org/",
+    hoursOverview: "Emergency and inpatient 24/7; clinics Mon–Sat.",
+    facilities: [
+      {
+        name: "Montefiore — Moses Campus (demo)",
+        address: "111 East 210th Street",
+        city: "Bronx",
+        state: "NY",
+        phone: "(555) 020-5001",
+        description: "Main demo hospital for Bronx population health pilots.",
+        sortOrder: 0,
+      },
+    ],
+    specialties: [
+      { name: "Pediatrics", description: "Children's hospital referrals and vaccines.", sortOrder: 0 },
+      { name: "Pulmonary Medicine", description: "Asthma, COPD, and sleep studies.", sortOrder: 1 },
+    ],
+    providers: [
+      {
+        name: "Dr. Carmen Iglesias",
+        title: "Pediatrician",
+        specialty: "Pediatrics",
+        credentials: "MD",
+        department: "Children's Hospital · Demo",
+        email: "carmen.iglesias.demo@carebridge.local",
+        phone: "(555) 020-5101",
+        bio: "Fictional pediatrician for school physical and immunization form uploads.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Philip Adjei",
+        title: "Pulmonologist",
+        specialty: "Pulmonary Medicine",
+        credentials: "MD",
+        department: "Advanced Care · Demo",
+        email: "philip.adjei.demo@carebridge.local",
+        phone: "(555) 020-5102",
+        bio: "Demo pulmonologist for PFT and sleep study documentation.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+    ],
+  },
+  {
+    name: "NewYork-Presbyterian",
+    slug: "newyork-presbyterian",
+    type: "hospital",
+    city: "New York",
+    state: "NY",
+    description: "Demo NewYork-Presbyterian listing — major NYC hospital network (fictional contacts).",
+    streetAddress: "525 East 68th Street",
+    zipCode: "10065",
+    phone: "(555) 020-6000",
+    website: "https://www.nyp.org/",
+    hoursOverview: "Campuses 24/7; outpatient practices variable.",
+    specialties: [
+      { name: "Emergency Medicine", description: "ED follow-up and discharge summaries.", sortOrder: 0 },
+      { name: "Maternal Health", description: "OB triage and prenatal records.", sortOrder: 1 },
+    ],
+    facilities: [
+      {
+        name: "NYP — Weill Cornell Medical Center (demo campus)",
+        address: "525 East 68th Street",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-6001",
+        description: "Manhattan demo campus for multi-disciplinary uploads.",
+        sortOrder: 0,
+      },
+      {
+        name: "NYP — Columbia University Irving Medical Center (demo)",
+        address: "622 West 168th Street",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-6002",
+        description: "Washington Heights demo campus.",
+        sortOrder: 1,
+      },
+    ],
+    providers: [
+      {
+        name: "Dr. Amira Shah",
+        title: "Internal Medicine Hospitalist",
+        specialty: "Internal Medicine",
+        credentials: "MD",
+        department: "Hospital Medicine · Demo",
+        email: "amira.shah.demo@carebridge.local",
+        phone: "(555) 020-6101",
+        bio: "Fictional hospitalist coordinating post-discharge document exchange.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Grace O'Neill",
+        title: "Obstetrician",
+        specialty: "Obstetrics & Gynecology",
+        credentials: "MD",
+        department: "Women's Health · Demo",
+        email: "grace.oneill.demo@carebridge.local",
+        phone: "(555) 020-6102",
+        bio: "Demo OB physician for prenatal lab and ultrasound uploads.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+    ],
+  },
+  {
+    name: "Mount Sinai Health System",
+    slug: "mount-sinai",
+    type: "hospital",
+    city: "New York",
+    state: "NY",
+    description: "Demo Mount Sinai profile with fictional physician directory for CareBridge.",
+    streetAddress: "1 Gustave L. Levy Place",
+    zipCode: "10029",
+    phone: "(555) 020-7000",
+    website: "https://www.mountsinai.org/",
+    hoursOverview: "Icahn School-affiliated demo sites; ER 24/7.",
+    facilities: [
+      {
+        name: "Mount Sinai Hospital (demo)",
+        address: "1 Gustave L. Levy Place",
+        city: "New York",
+        state: "NY",
+        phone: "(555) 020-7001",
+        description: "Flagship demo hospital on the East Side.",
+        sortOrder: 0,
+      },
+    ],
+    specialties: [
+      { name: "Dermatology", description: "Biopsy and telederm referrals.", sortOrder: 0 },
+      { name: "Nephrology", description: "Dialysis and kidney transplant workups.", sortOrder: 1 },
+    ],
+    providers: [
+      {
+        name: "Dr. Jonas Park",
+        title: "Primary Care Physician",
+        specialty: "Internal Medicine",
+        credentials: "MD",
+        department: "Mount Sinai Doctors · Demo",
+        email: "jonas.park.demo@carebridge.local",
+        phone: "(555) 020-7101",
+        bio: "Fictional PCP for Mount Sinai demo routing.",
+        isPrimaryCare: true,
+        sortOrder: 0,
+      },
+      {
+        name: "Dr. Mei Lin",
+        title: "Dermatologist",
+        specialty: "Dermatology",
+        credentials: "MD",
+        department: "Dermatology Faculty Practice · Demo",
+        email: "mei.lin.demo@carebridge.local",
+        phone: "(555) 020-7102",
+        bio: "Demo dermatologist reviewing pathology and clinical photo uploads.",
+        isPrimaryCare: false,
+        sortOrder: 1,
+      },
+    ],
+  },
+];
+
+export async function seedRegionalHealthSystems(prisma: PrismaClient) {
+  for (const entry of REGIONAL_HEALTH_SYSTEM_ORGS) {
+    const { name, slug, type, city, state, description, ...profile } = entry;
+
+    const org = await prisma.organization.upsert({
+      where: { slug },
+      create: { name, slug, type, city, state, description, isActive: true },
+      update: { name, type, city, state, description, isActive: true },
+    });
+
+    await prisma.organizationFacility.deleteMany({ where: { organizationId: org.id } });
+    await prisma.organizationSpecialty.deleteMany({ where: { organizationId: org.id } });
+    await prisma.careProvider.deleteMany({ where: { organizationId: org.id } });
+
+    await prisma.organization.update({
+      where: { id: org.id },
+      data: {
+        streetAddress: profile.streetAddress,
+        zipCode: profile.zipCode,
+        phone: profile.phone,
+        website: profile.website,
+        hoursOverview: profile.hoursOverview,
+        accreditations: profile.accreditations,
+        patientPopulation: profile.patientPopulation,
+      },
+    });
+
+    await prisma.organizationFacility.createMany({
+      data: profile.facilities.map((f) => ({ ...f, organizationId: org.id })),
+    });
+    await prisma.organizationSpecialty.createMany({
+      data: profile.specialties.map((s) => ({ ...s, organizationId: org.id })),
+    });
+    await prisma.careProvider.createMany({
+      data: profile.providers.map((p) => ({
+        ...p,
+        organizationId: org.id,
+        photoUrl: photoUrlForProvider(p.name),
+      })),
+    });
+  }
+}

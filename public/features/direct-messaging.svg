@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none" role="img" aria-label="Secure messaging">
+  <rect width="320" height="200" rx="12" fill="#EFF6FF"/>
+  <rect x="50" y="55" width="140" height="36" rx="18" fill="#2563EB"/>
+  <rect x="130" y="100" width="140" height="36" rx="18" fill="#fff" stroke="#BFDBFE" stroke-width="2"/>
+  <rect x="70" y="145" width="120" height="32" rx="16" fill="#DBEAFE"/>
+  <circle cx="265" cy="100" r="22" fill="#1D4ED8" opacity="0.2"/>
+  <path d="M255 100h20M265 90v20" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+</svg>
