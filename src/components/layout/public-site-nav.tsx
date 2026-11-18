@@ -36,7 +36,7 @@ export function PublicSiteNav({ className, layout = "row", onNavigate }: Props) 
         FAQs
       </Link>
       <Link href="/contact" className={linkClass} onClick={close}>
-        Contact us
+        Contact Us
       </Link>
     </nav>
   );

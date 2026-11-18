@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="text-3xl font-bold text-slate-900">Contact us</h1>
+      <h1 className="text-3xl font-bold text-slate-900">Contact Us</h1>
       <p className="mt-4 text-slate-600">
         Questions about the CareBridge demo, partnerships, or technical support? Reach out using
         the fictional contact details below (for demonstration only).

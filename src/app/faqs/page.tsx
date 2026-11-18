@@ -57,7 +57,7 @@ export default function FaqsPage() {
       <p className="mt-4 text-slate-600">
         Common questions about using the CareBridge prototype. For anything not covered here, see{" "}
         <Link href="/contact" className="text-blue-700 hover:underline">
-          Contact us
+          Contact Us
         </Link>
         .
       </p>
